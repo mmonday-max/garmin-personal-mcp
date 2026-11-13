@@ -944,12 +944,12 @@ const I18N = /* garmin-i18n:start */{}/* garmin-i18n:end */;
   });
 
   describe("since", () => {
-    const asked: (number | undefined)[] = [];
+    const weeksAsked: (number | undefined)[] = [];
     const build = () => {
-      asked.length = 0;
+      weeksAsked.length = 0;
       writer = new DashboardWriter(
         async (weeks) => {
-          asked.push(weeks);
+          weeksAsked.push(weeks);
           return JSON.stringify(full);
         },
         dir,
@@ -967,15 +967,15 @@ const I18N = /* garmin-i18n:start */{}/* garmin-i18n:end */;
 
     it("asks for the weeks since the day, and keeps the setting for the next update", async () => {
       await build().write({ settings: { since: "2026-01-05" } });
-      expect(asked).toEqual([weeksSince("2026-01-05")]);
+      expect(weeksAsked).toEqual([weeksSince("2026-01-05")]);
       expect(page()).toContain('"since":"2026-01-05"');
       await build().write({});
-      expect(asked).toEqual([weeksSince("2026-01-05")]);
+      expect(weeksAsked).toEqual([weeksSince("2026-01-05")]);
     });
 
     it("lets the weeks of the call win", async () => {
       await build().write({ weeks: 4, settings: { since: "2026-01-05" } });
-      expect(asked).toEqual([4]);
+      expect(weeksAsked).toEqual([4]);
     });
 
     it("refuses a day that is not a date or is in the future", async () => {
