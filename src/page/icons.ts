@@ -109,13 +109,56 @@ export function icon(name: string): SVGElement {
   return svg;
 }
 
-/** The logo, inline so that its colours follow the theme; assets/logo.svg is the same mark on a tile. */
+const ROSIE_EAR: [number, number][] = [
+  [236, 165],
+  [220, 200],
+  [214, 238],
+  [220, 276],
+  [236, 306],
+  [256, 320],
+];
+const ROSIE_HEAD: [number, number][] = [
+  [440, 205],
+  [427, 251],
+  [390, 285],
+  [340, 297],
+  [290, 285],
+  [253, 251],
+  [240, 205],
+  [253, 159],
+  [290, 125],
+  [340, 113],
+  [390, 125],
+  [427, 159],
+];
+
+/** A ring of circles: the outline is the dark circles, the fill the same circles a little smaller. */
+function curls(points: [number, number][], r: number, fill: string, mirror = false): string {
+  const at = (x: number) => (mirror ? 680 - x : x);
+  const ring = (radius: number, attrs: string) =>
+    points.map(([x, y]) => `<circle cx="${at(x)}" cy="${y}" r="${radius}" ${attrs}/>`).join("");
+  return `<g fill="#8A5A2B" stroke="#8A5A2B" stroke-width="7">${ring(r, "")}</g><g fill="${fill}">${ring(r - 1, 'stroke="none"')}</g>`;
+}
+
+/** The logo: a sketch of Rosie's head, inline. Its colours are fixed, like a photo, in every theme. */
 export function logo(): SVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 32 32");
+  svg.setAttribute("viewBox", "180 55 320 320");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("class", "logo");
   svg.innerHTML =
-    '<circle class="logo-track" cx="16" cy="16" r="10"/><path class="logo-arc" d="M16 6a10 10 0 1 1-10 10"/><circle class="logo-dot" cx="16" cy="16" r="3.4"/>';
+    curls(ROSIE_EAR, 26, "#F4DDB5") +
+    curls(ROSIE_EAR, 26, "#F4DDB5", true) +
+    curls(ROSIE_HEAD, 34, "#E9B97A") +
+    '<ellipse cx="340" cy="205" rx="100" ry="92" fill="#E9B97A" stroke="none"/>' +
+    '<ellipse cx="340" cy="252" rx="56" ry="42" fill="#F2CC96" stroke="#8A5A2B" stroke-width="3"/>' +
+    '<g fill="none" stroke="#8A5A2B" stroke-width="3" stroke-linecap="round">' +
+    '<path d="M284 170q10-12 24-3"/><path d="M396 170q-10-12-24-3"/>' +
+    '<path d="M312 138q10-9 20 0q10 9 20 0"/><path d="M322 120q8-7 16 0"/>' +
+    '<path d="M340 258V270"/><path d="M320 275Q340 288 340 270Q340 288 360 275"/></g>' +
+    '<g fill="#3B2418" stroke="none"><circle cx="298" cy="192" r="10"/><circle cx="382" cy="192" r="10"/></g>' +
+    '<g fill="#FFFFFF" stroke="none"><circle cx="295" cy="188" r="3"/><circle cx="379" cy="188" r="3"/></g>' +
+    '<ellipse cx="340" cy="238" rx="25" ry="17" fill="#4A2E22" stroke="none"/>' +
+    '<ellipse cx="333" cy="233" rx="7" ry="3.5" fill="#8C6A58" stroke="none"/>';
   return svg;
 }
