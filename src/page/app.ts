@@ -346,7 +346,11 @@ function header(data: Data): HTMLElement {
           h(
             "p",
             { class: "muted" },
-            t("period", { from: fmt.longDay(data.start), to: fmt.longDay(data.end) }),
+            t("period", {
+              // the window starts on a Monday; a `since` day inside that week is where the data begins
+              from: fmt.longDay(S.since && S.since > data.start ? S.since : data.start),
+              to: fmt.longDay(data.end),
+            }),
           ),
         ),
       ),

@@ -368,19 +368,20 @@ The `dashboard-setup` prompt asks you questions and writes a page with your answ
 ask your assistant directly, for example "make a dashboard for my coach without my sleep data". The
 assistant calls `writeDashboard` with `settings`:
 
-| Setting           | What it does                                                               | Default                                                |
-| ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `title`           | replaces the title in every language                                       | the built-in title                                     |
-| `headline`        | replaces the line under the title in every language                        | the built-in headline                                  |
-| `sports`          | the boards to keep, for example `running` and `cycling`                    | all                                                    |
-| `exclude`         | the data to leave out: `recovery`, `fitnessAge`, `zones`, `names`, `notes` | none                                                   |
-| `languages`       | the built-in languages to keep: `en`, `it`, `de`, `fr`, `es`, `pt`         | English and the language of the Garmin profile         |
-| `language`        | the language that the page opens in: `auto` or a language code             | the profile language when the page has it, else `auto` |
-| `themes`          | the themes to keep                                                         | all                                                    |
-| `theme`           | the theme that the page opens in                                           | `midnight`                                             |
-| `workouts`        | compare the same run workout across weeks (the Workout trend widget)       | off                                                    |
-| `recoveryHistory` | keep sleep and resting HR for the whole period (the Recovery trend widget) | off                                                    |
-| `shared`          | a page for another person: a new file of it is readable by other users     | off                                                    |
+| Setting           | What it does                                                                     | Default                                                |
+| ----------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `title`           | replaces the title in every language                                             | the built-in title                                     |
+| `headline`        | replaces the line under the title in every language                              | the built-in headline                                  |
+| `sports`          | the boards to keep, for example `running` and `cycling`                          | all                                                    |
+| `exclude`         | the data to leave out: `recovery`, `fitnessAge`, `zones`, `names`, `notes`       | none                                                   |
+| `languages`       | the built-in languages to keep: `en`, `it`, `de`, `fr`, `es`, `pt`               | English and the language of the Garmin profile         |
+| `language`        | the language that the page opens in: `auto` or a language code                   | the profile language when the page has it, else `auto` |
+| `themes`          | the themes to keep                                                               | all                                                    |
+| `theme`           | the theme that the page opens in                                                 | `midnight`                                             |
+| `workouts`        | compare the same run workout across weeks (the Workout trend widget)             | off                                                    |
+| `recoveryHistory` | keep sleep and resting HR for the whole period (the Recovery trend widget)       | off                                                    |
+| `since`           | the first day of the data (`yyyy-MM-dd`): the page starts in that week and grows | the last weeks                                         |
+| `shared`          | a page for another person: a new file of it is readable by other users           | off                                                    |
 
 The server leaves the excluded data and sports out of the file, and out of the digest for the coach
 notes. The server cannot remove data from the chat. If another tool showed the data earlier in the

@@ -4,7 +4,8 @@ import { homedir } from "node:os";
 import { resolve } from "node:path";
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { weeksCovered } from "./dashboard";
+import { addDays, localToday } from "./dates";
+import { weeksCovered, weeksSince } from "./dashboard";
 import { type Digest, digest, syncGaps } from "./digest";
 import { Profile } from "@garmin/fitsdk";
 import { type Activity, GROUPS, groupOf, tabsFor } from "./analytics/calc";
@@ -292,6 +293,16 @@ function withNewPresetWidgets(
 /** A new layout rev: a browser edit made on another layout never applies to this one. */
 const newRev = () => randomBytes(6).toString("hex");
 
+/** The weeks to cover: the call's, else back to the `since` day of the settings, else the page's own. */
+function windowWeeks(
+  weeks: number | undefined,
+  settings: Settings,
+  old: string | undefined,
+): number | undefined {
+  if (weeks !== undefined) return weeks;
+  return settings.since === undefined ? weeksOf(old) : weeksSince(settings.since);
+}
+
 /** The weeks of the page's data; undefined when it has none. */
 function weeksOf(page: string | undefined): number | undefined {
   if (page === undefined) return undefined;
@@ -542,6 +553,7 @@ export function checkSettings(s: Settings): Settings {
         "theme",
         "workouts",
         "recoveryHistory",
+        "since",
         "shared",
       ].includes(k),
   );
@@ -564,6 +576,15 @@ export function checkSettings(s: Settings): Settings {
     problems.push("workouts: true or false");
   if (s.recoveryHistory !== undefined && typeof s.recoveryHistory !== "boolean")
     problems.push("recoveryHistory: true or false");
+  if (s.since !== undefined) {
+    const ok =
+      typeof s.since === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(s.since) &&
+      !Number.isNaN(Date.parse(`${s.since}T00:00:00Z`)) &&
+      addDays(s.since, 0) === s.since;
+    if (!ok) problems.push("since: a date, yyyy-MM-dd");
+    else if (s.since > localToday()) problems.push("since: not a day in the future");
+  }
   if (s.shared !== undefined && typeof s.shared !== "boolean")
     problems.push("shared: true or false");
   if (problems.length > 0) throw new Error(`Settings: ${problems.join("; ")}`);
@@ -629,7 +650,7 @@ export class DashboardWriter {
       }
       const data = JSON.parse(
         await this.#data(
-          options.weeks ?? weeksOf(old),
+          windowWeeks(options.weeks, settings, old),
           settings.workouts === true,
           wantsHistory(settings),
         ),
@@ -680,7 +701,7 @@ export class DashboardWriter {
       page = await this.#withLibrary(page, old);
       const raw = JSON.parse(
         await this.#data(
-          options.weeks ?? weeksOf(old),
+          windowWeeks(options.weeks, settings, old),
           settings.workouts === true,
           wantsHistory(settings),
         ),
@@ -778,7 +799,7 @@ export class DashboardWriter {
     }
     const raw = JSON.parse(
       await this.#data(
-        weeks ?? weeksOf(old),
+        windowWeeks(weeks, own, old),
         own.workouts === true,
         wantsHistory(own),
         again || notes.length > 0,
@@ -1440,6 +1461,12 @@ export function registerDashboardWriter(server: McpServer, writer: DashboardWrit
               .boolean()
               .describe(
                 "Keep the sleep and resting HR rows of the whole period in the page, not only the last 14 days; off when not set",
+              )
+              .optional(),
+            since: z
+              .string()
+              .describe(
+                "The first day of the data, yyyy-MM-dd, e.g. the day a new watch began: the page starts in the week of this day and grows each week, up to 52 weeks. The weeks of the call win when given; off when not set",
               )
               .optional(),
             shared: z

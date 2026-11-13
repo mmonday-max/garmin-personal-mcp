@@ -24,6 +24,8 @@ export interface Settings {
   workouts?: boolean;
   /** Keep the recovery rows of the whole period, not only the last 14 days. Off when not set. */
   recoveryHistory?: boolean;
+  /** The first day of the data, yyyy-MM-dd: the window starts in the week of this day and grows each week. The weeks of the call win when given. Not set: the last weeks. */
+  since?: string;
   /** A page for another person, e.g. a coach: the server makes a new file of it that other users can read (644). */
   shared?: boolean;
 }

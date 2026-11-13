@@ -25,6 +25,7 @@ import {
   UnwritableBlockError,
   writeBlock,
 } from "../src/dashboard-page";
+import { weeksSince } from "../src/dashboard";
 import { digest } from "../src/digest";
 import { log } from "../src/log";
 import { preset } from "../src/page/presets";
@@ -940,6 +941,48 @@ const I18N = /* garmin-i18n:start */{}/* garmin-i18n:end */;
     }
     expect(workouts).toEqual([false, true, true]);
     expect(page()).toContain('"workouts":true');
+  });
+
+  describe("since", () => {
+    const asked: (number | undefined)[] = [];
+    const build = () => {
+      asked.length = 0;
+      writer = new DashboardWriter(
+        async (weeks) => {
+          asked.push(weeks);
+          return JSON.stringify(full);
+        },
+        dir,
+        async () => templateText,
+      );
+      return writer;
+    };
+
+    it("counts the weeks back to the Monday of the first day", () => {
+      expect(weeksSince("2026-09-14", "2026-11-12")).toBe(8);
+      expect(weeksSince("2026-09-16", "2026-11-12")).toBe(8);
+      expect(weeksSince("2026-11-12", "2026-11-12")).toBe(1);
+      expect(weeksSince("2020-01-01", "2026-11-12")).toBe(52);
+    });
+
+    it("asks for the weeks since the day, and keeps the setting for the next update", async () => {
+      await build().write({ settings: { since: "2026-01-05" } });
+      expect(asked).toEqual([weeksSince("2026-01-05")]);
+      expect(page()).toContain('"since":"2026-01-05"');
+      await build().write({});
+      expect(asked).toEqual([weeksSince("2026-01-05")]);
+    });
+
+    it("lets the weeks of the call win", async () => {
+      await build().write({ weeks: 4, settings: { since: "2026-01-05" } });
+      expect(asked).toEqual([4]);
+    });
+
+    it("refuses a day that is not a date or is in the future", async () => {
+      for (const since of ["yesterday", "2026-13-40", "2026-02-30", "2999-01-01"]) {
+        await expect(build().write({ settings: { since } })).rejects.toThrow(/since/);
+      }
+    });
   });
 
   describe("recoveryHistory", () => {

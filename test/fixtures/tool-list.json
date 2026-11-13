@@ -583,6 +583,10 @@
               "type": "boolean",
               "description": "Keep the sleep and resting HR rows of the whole period in the page, not only the last 14 days; off when not set"
             },
+            "since": {
+              "type": "string",
+              "description": "The first day of the data, yyyy-MM-dd, e.g. the day a new watch began: the page starts in the week of this day and grows each week, up to 52 weeks. The weeks of the call win when given; off when not set"
+            },
             "shared": {
               "type": "boolean",
               "description": "A page for another person, e.g. a coach: a new page file is readable by other users of the computer; off when not set"

@@ -35,6 +35,17 @@ const SUMMARY_RANGE = "/usersummary-service/v2/dailysummaries";
 /** The newest sessions of each repeated run name whose laps are downloaded, for the workout trend. */
 export const WORKOUT_SESSIONS = 8;
 
+/**
+ * The weeks that reach back to the week of `since` (yyyy-MM-dd): the window then starts on the
+ * Monday of that week, and grows by one week each Monday, up to the longest window.
+ */
+export const weeksSince = (since: string, today: string = localToday()): number => {
+  const days =
+    (Date.parse(`${mondayOf(today)}T00:00:00Z`) - Date.parse(`${mondayOf(since)}T00:00:00Z`)) /
+    86_400_000;
+  return weeksCovered(Math.round(days / 7));
+};
+
 /** The weeks that getDashboardData covers for an asked number: 12 by default, 1 to 52. */
 export const weeksCovered = (weeks: number | undefined): number =>
   weeks == null ? DEFAULT_WEEKS : Math.min(Math.max(weeks, 1), MAX_WEEKS);
